@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>每天一测</title>
+<style>
+  * { margin:0; padding:0; box-sizing:border-box; -webkit-tap-highlight-color:transparent; }
+  body { font-family:-apple-system, "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", sans-serif; background:#FFF9F2; color:#333; min-height:100vh; display:flex; flex-direction:column; }
+  header { text-align:center; padding:22px 16px 8px; }
+  header h1 { font-size:22px; letter-spacing:2px; }
+  header p { font-size:12px; color:#999; margin-top:4px; }
+  main { flex:1; width:100%; max-width:520px; margin:0 auto; padding:12px 16px 24px; }
+  .card { background:#fff; border-radius:16px; padding:24px 20px; box-shadow:0 2px 12px rgba(0,0,0,.06); margin-bottom:14px; }
+  .quiz-title { font-size:20px; font-weight:700; margin-bottom:6px; line-height:1.4; }
+  .quiz-meta { font-size:13px; color:#999; margin-bottom:18px; }
+  .btn { display:block; width:100%; border:none; border-radius:12px; padding:14px; font-size:16px; font-weight:600; cursor:pointer; margin-top:10px; }
+  .btn-primary { background:#FF8A5C; color:#fff; }
+  .btn-ghost { background:#F5F0E8; color:#666; }
+  .btn:active { opacity:.85; }
+  .progress { font-size:13px; color:#999; margin-bottom:10px; }
+  .progress-bar { height:6px; background:#F0E8DA; border-radius:3px; overflow:hidden; margin-bottom:18px; }
+  .progress-bar i { display:block; height:100%; background:#FF8A5C; border-radius:3px; transition:width .25s; }
+  .q-prompt { font-size:18px; font-weight:600; line-height:1.5; margin-bottom:18px; }
+  .opt { display:block; width:100%; text-align:left; background:#FFF9F2; border:2px solid #F0E4D3; border-radius:12px; padding:13px 14px; font-size:15px; margin-bottom:10px; cursor:pointer; line-height:1.45; color:#333; }
+  .opt.selected { border-color:#FF8A5C; background:#FFF3EA; font-weight:600; }
+  .scale-wrap { padding:6px 2px 0; }
+  .scale-labels { display:flex; justify-content:space-between; font-size:13px; color:#888; margin-bottom:10px; }
+  input[type=range] { width:100%; accent-color:#FF8A5C; height:32px; }
+  .scale-val { text-align:center; font-size:13px; color:#aaa; margin-top:4px; }
+  .result-card { text-align:center; padding:30px 22px; border-radius:18px; background:#fff; box-shadow:0 2px 12px rgba(0,0,0,.06); position:relative; overflow:hidden; }
+  .result-card::before { content:""; position:absolute; top:0; left:0; right:0; height:8px; background:var(--accent,#FF8A5C); }
+  .result-tag { display:inline-block; font-size:12px; color:#999; border:1px solid #E5DCCB; border-radius:20px; padding:4px 12px; margin-bottom:14px; }
+  .result-name { font-size:26px; font-weight:800; margin-bottom:12px; color:var(--accent,#FF8A5C); }
+  .result-blurb { font-size:15px; line-height:1.7; color:#555; }
+  .result-date { font-size:12px; color:#bbb; margin-top:16px; }
+  .arch-item { background:#fff; border-radius:12px; padding:14px 16px; margin-bottom:10px; box-shadow:0 1px 6px rgba(0,0,0,.05); cursor:pointer; }
+  .arch-item .d { font-size:12px; color:#999; }
+  .arch-item .t { font-size:15px; font-weight:600; margin:4px 0; }
+  .arch-item .r { font-size:13px; color:#FF8A5C; }
+  .arch-item .n { font-size:12px; color:#bbb; margin-top:2px; }
+  .replay-q { margin-bottom:16px; }
+  .replay-q .p { font-size:14px; font-weight:600; margin-bottom:8px; }
+  .replay-a { font-size:14px; background:#FFF3EA; border-radius:8px; padding:8px 12px; color:#666; }
+  .replay-a b { color:#FF8A5C; }
+  .empty { text-align:center; color:#aaa; padding:40px 0; font-size:14px; }
+  .back { font-size:14px; color:#999; margin-bottom:12px; cursor:pointer; display:inline-block; }
+  footer { text-align:center; font-size:11px; color:#bbb; padding:14px 20px 22px; line-height:1.6; }
+  .done-note { text-align:center; color:#999; font-size:14px; margin-top:14px; }
+</style>
+</head>
+<body>
+<header>
+  <h1>每天一测</h1>
+  <p>每天一期小测试，好玩不上头</p>
+</header>
+<main id="view"></main>
+<footer>答题记录仅保存在本浏览器，换浏览器或清除网站数据会丢失。<br>每天一期，轻松一下。</footer>
+<script>
+var LAUNCH = new Date(2026, 9, 16);
+var LS_KEY = "ghquiz_archive_v1";
+var QUIZZES = [
+{ title:"你的周末，自带哪种天气？", order:["mellow","curious","spark"], questions:[
+{t:"c", p:"周六突然空出一个下午，你的第一反应是？", o:[{l:"先躺十分钟，再决定世界需不需要我",k:"mellow"},{l:"搜搜附近有没有没去过的小店",k:"curious"},{l:"立刻约人，临时局才有灵魂",k:"spark"}]},
+{t:"s", p:"遇到一家菜单全是陌生名字的店，你有多大可能直接点最看不懂的那个？", min:"稳妥熟悉款", max:"请给我惊喜", mk:"mellow", xk:"curious"},
+{t:"c", p:"等车还有二十分钟，你更可能？", o:[{l:"找个舒服位置发会儿呆",k:"mellow"},{l:"四处走走，看能发现什么",k:"curious"},{l:"打开相机，拍一组候车大片",k:"spark"}]},
+{t:"c", p:"桌上突然多了一张漂亮贴纸，你会把它贴在哪？", o:[{l:"先收好，等它命中天选位置",k:"mellow"},{l:"贴在每天都能看到的新地方",k:"spark"},{l:"贴礼物上，再配一套包装",k:"spark"}]},
+{t:"s", p:"听歌时，你有多大可能在前十秒就决定切歌？", min:"愿意多听一会儿", max:"十秒定去留", mk:"mellow", xk:"spark"},
+{t:"c", p:"下雨的午后，最对你胃口的画面是？", o:[{l:"窗边、热饮、谁都别催",k:"mellow"},{l:"撑伞出门，看城市换了滤镜",k:"curious"},{l:"换上喜欢的衣服，专门去踩水",k:"spark"}]},
+{t:"c", p:"给普通的一天加一个小彩蛋，你会选？", o:[{l:"把晚上留给一部早想看的电影",k:"mellow"},{l:"绕路去买没尝过的小点心",k:"curious"},{l:"认真打扮，只为去楼下取快递",k:"spark"}]}],
+results:{mellow:{n:"松弛派现场导演", d:"你很会给日子留白。热闹可以有，但舒服才是主线；别人赶场，你在给快乐调合适的音量。", c:"#2D7C8A"},curious:{n:"好奇心探路员", d:"你对没试过这三个字很难装作没看见。不是非要远行，换条路、点个新品，也能让一天突然长出新剧情。", c:"#F05A2A"},spark:{n:"小型烟花制造机", d:"你擅长把普通时刻拧亮一点。临时起意、认真装饰、突然加戏——生活经过你手里，常常会多一个感叹号。", c:"#D89B10"}}},
+{ title:"你是哪种干饭人？", order:["sage","taster","joyful"], questions:[
+{t:"c", p:"干饭前第一件事？", o:[{l:"拍照，先让手机吃",k:"taster"},{l:"直接开动，饿是原罪",k:"joyful"},{l:"先喝口汤，仪式感拉满",k:"sage"}]},
+{t:"s", p:"看到新品上市四个字，你有多想立刻冲？", min:"看看就好", max:"现在就要", mk:"sage", xk:"taster"},
+{t:"c", p:"一人食的深夜，你更可能点？", o:[{l:"熟悉的那家，闭眼下单",k:"sage"},{l:"刷到哪家是哪家",k:"joyful"},{l:"存了很久的那家，今晚就翻牌",k:"taster"}]},
+{t:"c", p:"朋友说随便吃点，你心里想的是？", o:[{l:"那我可就不客气了",k:"joyful"},{l:"随便=你定，我都行",k:"sage"},{l:"随便是最难的题，容我想想",k:"taster"}]},
+{t:"s", p:"吃到好吃的，你有多大可能立刻安利给所有人？", min:"自己偷着乐", max:"广播全世界", mk:"sage", xk:"taster"},
+{t:"c", p:"自助餐开场，你的策略是？", o:[{l:"先侦察一圈再出手",k:"sage"},{l:"直奔肉区，时间就是金钱",k:"joyful"},{l:"每样都来点，雨露均沾",k:"taster"}]},
+{t:"c", p:"最后一块肉，你会？", o:[{l:"让给朋友，显得大方",k:"sage"},{l:"眼疾手快，谁抢到是谁的",k:"joyful"},{l:"提议石头剪刀布，公平起见",k:"taster"}]}],
+results:{sage:{n:"干饭哲学家", d:"吃什么不重要，怎么吃才重要。你有自己的干饭节奏，不慌不忙，但每一口都吃得明白。", c:"#7A5C3E"},taster:{n:"人间试吃员", d:"新品雷达24小时在线，好吃的东西逃不过你的眼睛。朋友的美食清单，一半是你贡献的。", c:"#E2574C"},joyful:{n:"快乐干饭魂", d:"干饭就是干饭，快乐最重要。你的胃口和你的笑声一样有感染力，跟你吃饭的人都会多吃一碗。", c:"#F2A007"}}},
+{ title:"你的手机暴露了哪种人格？", order:["minimal","keeper","native"], questions:[
+{t:"c", p:"手机屏保是？", o:[{l:"默认的，懒得换",k:"minimal"},{l:"精心挑的，代表我本人",k:"native"},{l:"家人/宠物/爱豆，必须是TA",k:"keeper"}]},
+{t:"s", p:"睡前最后一件事是刷手机吗？", min:"沾枕头就睡", max:"刷到手机砸脸", mk:"minimal", xk:"native"},
+{t:"c", p:"收到99+未读消息，你会？", o:[{l:"挑重要的回，其他的假装没看见",k:"minimal"},{l:"强迫症发作，一条条清掉",k:"keeper"},{l:"直接已读不回，明天再说",k:"native"}]},
+{t:"c", p:"手机相册里最多的是？", o:[{l:"截图，备忘录本录",k:"keeper"},{l:"美食美景，生活记录仪",k:"keeper"},{l:"表情包，斗图弹药库",k:"native"}]},
+{t:"s", p:"出门发现没带充电宝，你有多慌？", min:"淡定，一天不看手机也行", max:"天塌了，立刻找地方充电", mk:"minimal", xk:"native"},
+{t:"c", p:"换手机时最舍不得的是？", o:[{l:"聊天记录，满满的回忆",k:"native"},{l:"照片视频，我的数字资产",k:"keeper"},{l:"备忘录和收藏夹，知识库本库",k:"minimal"}]},
+{t:"c", p:"你的输入法皮肤是？", o:[{l:"默认，用着顺手就行",k:"minimal"},{l:"换过好几次，看心情",k:"native"},{l:"皮肤+按键音+振动，全套拉满",k:"keeper"}]}],
+results:{minimal:{n:"数字极简主义者", d:"手机是工具，不是主人。你的桌面干净得像刚擦过的桌子，通知栏永远清爽。", c:"#5B7C99"},keeper:{n:"云端收藏家", d:"你的手机是一座博物馆：截图、收藏、相册，每一样都舍不得删。万一哪天用上呢？", c:"#8E5AA8"},native:{n:"赛博原住民", d:"手机是你身体的延伸。电量低于20%你会心慌，WiFi密码是你到哪儿先问的第一句话。", c:"#E8833A"}}},
+{ title:"如果开一家小店，你会开什么？", order:["steady","vibe","ideas"], questions:[
+{t:"c", p:"开店第一要义是？", o:[{l:"赚钱，情怀不能当饭吃",k:"steady"},{l:"开心，自己喜欢最重要",k:"vibe"},{l:"有意义，能帮到人最好",k:"ideas"}]},
+{t:"s", p:"你能接受全年无休吗？", min:"必须有假期", max:"干劲满满不嫌累", mk:"vibe", xk:"steady"},
+{t:"c", p:"小店开在哪？", o:[{l:"热闹商圈，人流量就是钱",k:"steady"},{l:"安静街角，酒香不怕巷子深",k:"vibe"},{l:"线上小店，房租是什么",k:"ideas"}]},
+{t:"c", p:"第一位客人进门，你会？", o:[{l:"热情招呼，像老朋友一样",k:"vibe"},{l:"微笑点头，给足空间",k:"steady"},{l:"假装忙碌，内心兵荒马乱",k:"ideas"}]},
+{t:"s", p:"朋友提了个离谱的经营建议，你有多大可能试试？", min:"当耳旁风", max:"说干就干", mk:"steady", xk:"ideas"},
+{t:"c", p:"小店的招牌上写什么？", o:[{l:"名字+一句话介绍，清楚明白",k:"steady"},{l:"一句slogan，态度拉满",k:"vibe"},{l:"就一个logo，懂的都懂",k:"ideas"}]},
+{t:"c", p:"打烊后你会？", o:[{l:"复盘今天，记账到深夜",k:"steady"},{l:"瘫着，今天也是充实的一天",k:"vibe"},{l:"盘算明天的事，灵感停不下来",k:"ideas"}]}],
+results:{steady:{n:"稳健掌柜", d:"你是天生的经营者：账算得清、节奏稳得住。小店在你手里，三年五年都是细水长流。", c:"#4E7A5A"},vibe:{n:"氛围艺术家", d:"你卖的不是商品，是感觉。灯光、音乐、香气，每个细节都在说：留下来，再待一会儿。", c:"#C96A4A"},ideas:{n:"点子贩卖机", d:"你的小店永远有新花样：联名、快闪、隐藏菜单。客人每次来，都像开盲盒。", c:"#3E6FB0"}}},
+{ title:"你的旅行是哪种画风？", order:["planner","wanderer","chiller"], questions:[
+{t:"c", p:"出发前你会？", o:[{l:"攻略做到小时级，表格拉满",k:"planner"},{l:"大概看一眼，随缘",k:"wanderer"},{l:"攻略是什么，能吃吗",k:"chiller"}]},
+{t:"s", p:"看到网红打卡地排长队，你有多大可能加入？", min:"扭头就走", max:"来都来了", mk:"wanderer", xk:"planner"},
+{t:"c", p:"行李箱里一定有？", o:[{l:"常用药和充电宝，安全感",k:"planner"},{l:"好看的衣服，出片要紧",k:"wanderer"},{l:"一颗说走就走的心，其他现买",k:"chiller"}]},
+{t:"c", p:"旅行中最快乐的时刻是？", o:[{l:"按计划打卡全部景点",k:"planner"},{l:"偶遇一家超好吃的小店",k:"wanderer"},{l:"在酒店躺平，窗外就是风景",k:"chiller"}]},
+{t:"s", p:"你会在旅行中早起看日出吗？", min:"被窝才是本体", max:"闹钟定4点", mk:"chiller", xk:"planner"},
+{t:"c", p:"旅伴的最佳配置是？", o:[{l:"一个人，自由",k:"wanderer"},{l:"一两个知己，刚刚好",k:"chiller"},{l:"人越多越热闹",k:"planner"}]},
+{t:"c", p:"回来后你会？", o:[{l:"修图发九宫格，仪式感拉满",k:"planner"},{l:"写篇长长的游记",k:"wanderer"},{l:"什么都不发，快乐自己知道",k:"chiller"}]}],
+results:{planner:{n:"计划型旅人", d:"你的旅行像精密仪器：每个景点、每顿饭都在计划内。安全感，就是你最大的快乐。", c:"#3E7CA8"},wanderer:{n:"随缘流浪家", d:"计划赶不上变化，变化也不如不计划。你的旅行没有清单，只有故事。", c:"#7AB648"},chiller:{n:"度假躺平派", d:"出门就是为了换个地方躺。景点可以不去，酒店必须舒服。", c:"#E8A13D"}}},
+{ title:"你是哪种夜猫子？", order:["artist","owl","revenge"], questions:[
+{t:"c", p:"熬夜的你通常在干嘛？", o:[{l:"刷手机，根本停不下来",k:"revenge"},{l:"加班/学习，灯火通明",k:"owl"},{l:"躺着发呆，啥也没干但就是不想睡",k:"artist"}]},
+{t:"s", p:"再玩五分钟就睡，这句话你信过几次？", min:"说到做到", max:"每次都信每次都翻车", mk:"artist", xk:"revenge"},
+{t:"c", p:"深夜最治愈的是？", o:[{l:"一集下饭剧",k:"revenge"},{l:"一首循环的歌",k:"artist"},{l:"一碗热乎的夜宵",k:"owl"}]},
+{t:"c", p:"凌晨两点的朋友圈，你会发？", o:[{l:"不发，熬夜是秘密",k:"owl"},{l:"发张月亮，配三个字",k:"artist"},{l:"长篇大论，灵感爆发",k:"revenge"}]},
+{t:"s", p:"第二天早起，你有多大可能靠闹钟一次叫醒？", min:"一次就起", max:"五个闹钟全军覆没", mk:"owl", xk:"revenge"},
+{t:"c", p:"如果不用早起，你会几点睡？", o:[{l:"十二点前，养生要紧",k:"owl"},{l:"两三点，夜晚才是主场",k:"artist"},{l:"天亮再说，快乐最重要",k:"revenge"}]},
+{t:"c", p:"熬夜的终极理由是？", o:[{l:"白天的时间不属于我",k:"revenge"},{l:"夜晚灵感多",k:"artist"},{l:"没理由，就是不想结束今天",k:"owl"}]}],
+results:{artist:{n:"熬夜艺术家", d:"夜晚是你的主场：灵感、情绪、故事，全在深夜上线。白天那个困倦的人，和你仿佛不是同一个。", c:"#6A5ACD"},owl:{n:"被迫营业猫头鹰", d:"不是你想熬，是生活不让你睡。加班、赶due、哄娃，你的黑眼圈，每一圈都有理由。", c:"#4A7C8A"},revenge:{n:"报复性熬夜选手", d:"白天属于工作和别人，深夜才属于你。再玩五分钟，是你对自己最后的温柔。", c:"#C0504D"}}},
+{ title:"你的购物车藏着什么秘密？", order:["smart","hoarder","zen"], questions:[
+{t:"c", p:"购物车里躺最久的东西是？", o:[{l:"早就想买，一直没下手的",k:"smart"},{l:"凑单用的，用完就删",k:"smart"},{l:"忘了为什么加的，删了又加",k:"zen"}]},
+{t:"s", p:"限时优惠还剩2小时，你有多大可能立刻下单？", min:"不为所动", max:"手比脑子快", mk:"zen", xk:"hoarder"},
+{t:"c", p:"深夜加购的通常是？", o:[{l:"白天不好意思买的东西",k:"hoarder"},{l:"突然想起的生活必需品",k:"smart"},{l:"纯粹好看，买不买再说",k:"zen"}]},
+{t:"c", p:"你的付款方式是？", o:[{l:"攒够了再买，一次付清",k:"smart"},{l:"分期，快乐现在就要",k:"hoarder"},{l:"先加购，等降价",k:"smart"}]},
+{t:"s", p:"买到不合适的东西，你退货果断吗？", min:"立马退", max:"将就用吧", mk:"smart", xk:"zen"},
+{t:"c", p:"双十一你的状态是？", o:[{l:"提前做表格，精确到分",k:"smart"},{l:"当天随缘逛，看到便宜就买",k:"hoarder"},{l:"不参与，是我最后的倔强",k:"zen"}]},
+{t:"c", p:"收到快递时你最开心的是？", o:[{l:"拆箱的瞬间",k:"hoarder"},{l:"东西好用的每一天",k:"smart"},{l:"退货成功的那一刻",k:"zen"}]}],
+results:{smart:{n:"精明持家派", d:"你的购物车是精密计算的结果：比价、凑单、等降价，每一分钱都花在刀刃上。", c:"#4E8A5A"},hoarder:{n:"快乐囤货家", d:"看到喜欢的就想拥有。你的购物车永远99+，但每一件都承载着你当时的心动。", c:"#B07A3E"},zen:{n:"佛系消费者", d:"买不买都行，有也行没有也行。你的购物车来去自由，消费主义的风吹不到你这里。", c:"#7A8AA8"}}}
+];
+function todayStr(){ var d=new Date(); return d.getFullYear()+"-"+("0"+(d.getMonth()+1)).slice(-2)+"-"+("0"+d.getDate()).slice(-2); }
+function dayIndex(){ var n=new Date(); n.setHours(0,0,0,0); var l=new Date(LAUNCH); l.setHours(0,0,0,0); return Math.max(0, Math.floor((n-l)/86400000)); }
+function loadArch(){ try{ var s=localStorage.getItem(LS_KEY); return s?JSON.parse(s):[]; }catch(e){ return window._memArch||(window._memArch=[]); } }
+function saveArch(a){ try{ localStorage.setItem(LS_KEY, JSON.stringify(a)); }catch(e){ window._memArch=a; } }
+function esc(s){ return String(s).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;"); }
+var view=document.getElementById("view");
+var playState=null;
+function scoreQuiz(qi, answers){ var q=QUIZZES[qi], tally={}; q.order.forEach(function(k){ tally[k]=0; }); answers.forEach(function(a,i){ var qu=q.questions[i], key=null; if(qu.t==="c"){ key=qu.o[a].k; } else { key=(a<50)?qu.mk:qu.xk; } tally[key]=(tally[key]||0)+1; }); var best=q.order[0], bestScore=-1; q.order.forEach(function(k){ if(tally[k]>bestScore){ bestScore=tally[k]; best=k; } }); return best; }
+function answerLabel(qi, i, a){ var qu=QUIZZES[qi].questions[i]; if(qu.t==="c") return qu.o[a].l; return "滑动 "+a+"（"+(a<50?qu.min:qu.max)+"）"; }
+function renderHome(){ var qi=dayIndex()%QUIZZES.length, t=todayStr(), arch=loadArch(); var done=null; arch.forEach(function(e){ if(e.qi===qi&&e.d===t) done=e; }); if(done){ var q=QUIZZES[qi], r=q.results[done.k]; view.innerHTML='<div class="result-card" style="--accent:'+r.c+'">'+'<div class="result-tag">'+esc(q.title)+'</div>'+'<div class="result-name">'+esc(r.n)+'</div>'+'<div class="result-blurb">'+esc(r.d)+'</div>'+'<div class="result-date">'+t+' 的测试已完成</div></div>'+'<div class="done-note">明天的新测试见</div>'+'<button class="btn btn-ghost" onclick="renderArchive()">看看我的档案馆</button>'; }else{ var q2=QUIZZES[qi]; view.innerHTML='<div class="card"><div class="quiz-title">'+esc(q2.title)+'</div>'+'<div class="quiz-meta">今日测试 · '+q2.questions.length+'道题 · 约2分钟</div>'+'<button class="btn btn-primary" onclick="startQuiz('+qi+')">开始答题</button>'+'<button class="btn btn-ghost" onclick="renderArchive()">看看我的档案馆</button></div>'; } window.scrollTo(0,0); }
+function startQuiz(qi){ playState={qi:qi, i:0, answers:[]}; renderQ(); }
+function renderQ(){ var qi=playState.qi, i=playState.i, q=QUIZZES[qi], qu=q.questions[i], n=q.questions.length; var h='<div class="progress">第 '+(i+1)+' / '+n+' 题</div><div class="progress-bar"><i style="width:'+Math.round((i)/n*100)+'%">'+'</i></'+'div>'; h+='<div class="card"><div class="q-prompt">'+esc(qu.p)+'</div>'; if(qu.t==="c"){ qu.o.forEach(function(o,oi){ var sel=playState.answers[i]===oi?" selected":""; h+='<button class="opt'+sel+'" onclick="pickOpt('+oi+')">'+esc(o.l)+'</button>'; }); h+='<button class="btn btn-primary"'+(playState.answers[i]===undefined?" disabled style=opacity:.4":"")+' onclick="nextQ()">'+(i===n-1?"看结果":"下一题")+'</button>'; }else{ var v=playState.answers[i]===undefined?50:playState.answers[i]; h+='<div class="scale-wrap"><div class="scale-labels"><span>'+esc(qu.min)+'</span><span>'+esc(qu.max)+'</span></div>'+'<input type="range" min="0" max="100" value="'+v+'" oninput="pickScale(this.value)"><div class="scale-val" id="sv">'+v+'</div></'+'div>'+'<button class="btn btn-primary" onclick="nextQ()">'+(i===n-1?"看结果":"下一题")+'</button>'; } h+='</'+'div>'; view.innerHTML=h; window.scrollTo(0,0); }
+function pickOpt(oi){ playState.answers[playState.i]=oi; renderQ(); }
+function pickScale(v){ playState.answers[playState.i]=parseInt(v,10); var el=document.getElementById("sv"); if(el) el.textContent=v; }
+function nextQ(){ if(playState.answers[playState.i]===undefined) return; var q=QUIZZES[playState.qi]; if(playState.i<q.questions.length-1){ playState.i++; renderQ(); } else { var k=scoreQuiz(playState.qi, playState.answers); var labels=playState.answers.map(function(a,i){ return answerLabel(playState.qi,i,a); }); var arch=loadArch(); arch.push({qi:playState.qi, d:todayStr(), a:labels, k:k}); saveArch(arch); playState=null; renderResult(arch.length-1); } }
+function renderResult(entryIdx){ var arch=loadArch(), e=arch[entryIdx], q=QUIZZES[e.qi], r=q.results[e.k]; view.innerHTML='<div class="result-card" style="--accent:'+r.c+'">'+'<div class="result-tag">'+esc(q.title)+'</div>'+'<div class="result-name">'+esc(r.n)+'</div>'+'<div class="result-blurb">'+esc(r.d)+'</div>'+'<div class="result-date">'+e.d+' · 截图分享给朋友吧</div></'+'div>'+'<button class="btn btn-primary" onclick="renderHome()">回首页</button>'+'<button class="btn btn-ghost" onclick="renderArchive()">看看我的档案馆</button>'; window.scrollTo(0,0); }
+function renderArchive(){ var all=loadArch(); var h='<span class="back" onclick="renderHome()">← 回首页</span><div class="quiz-title" style="margin-bottom:14px">我的档案馆</div>'; if(!all.length){ h+='<div class="empty">还没有答过题<br>今天的测试在首页等你</div>'; } for(var ri=all.length-1; ri>=0; ri--){ (function(idx){ var e=all[idx], q=QUIZZES[e.qi], r=q.results[e.k]; var same=all.filter(function(x){return x.qi===e.qi;}).length; h+='<div class="arch-item" onclick="renderReplay('+idx+')">'+'<div class="d">'+e.d+'</div><div class="t">'+esc(q.title)+'</div>'+'<div class="r">'+esc(r.n)+'</div>'+(same>1?'<div class="n">本期共测过 '+same+' 次</div>':'')+'</div>'; })(ri); } view.innerHTML=h; window.scrollTo(0,0); }
+function renderReplay(idx){ var arch=loadArch(), e=arch[idx], q=QUIZZES[e.qi], r=q.results[e.k]; var h='<span class="back" onclick="renderArchive()">← 回档案馆</span>'+'<div class="quiz-title" style="margin-bottom:4px">'+esc(q.title)+'</div>'+'<div class="quiz-meta">'+e.d+' · 结果：'+esc(r.n)+'</div>'; q.questions.forEach(function(qu,i){ h+='<div class="card replay-q"><div class="p">Q'+(i+1)+' '+esc(qu.p)+'</div>'+'<div class="replay-a">我的选择：<b>'+esc(e.a[i]||"—")+'</b></div></'+'div>'; }); h+='<div class="result-card" style="--accent:'+r.c+';margin-bottom:14px"><div class="result-name" style="font-size:20px">'+esc(r.n)+'</div><div class="result-blurb">'+esc(r.d)+'</div></'+'div>'+'<button class="btn btn-primary" onclick="startQuiz('+e.qi+')">再测一次</button>'; view.innerHTML=h; window.scrollTo(0,0); }
+renderHome();
+</script>
+</body>
+</html>
